@@ -1,7 +1,9 @@
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import NoAlertPresentException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, NoAlertPresentException, TimeoutException
 from .locators import BasePageLocators
 import math
+from datetime import datetime
 
 
 class BasePage:
@@ -20,12 +22,35 @@ class BasePage:
             return False
         return True
 
+    def is_not_element_present(self, how, what, timeout=4, screenshot=True):
+        try:
+            WebDriverWait(self.browser, timeout). \
+                until(EC.presence_of_element_located((how, what)))
+        except TimeoutException:
+            if screenshot:
+                self.take_screenshot()
+            return True
+        return False
+
+    def take_screenshot(self):
+        now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        namefile = f"screenshot-{now}.png"
+        self.browser.get_screenshot_as_file(namefile)
+        print(f"Taked screenshot: {namefile}")
+
     def go_to_login_page(self):
         link = self.browser.find_element(*BasePageLocators.LOGIN_LINK)
         link.click()
 
+    def go_to_basket_page(self):
+        link = self.browser.find_element(*BasePageLocators.BTN_BASKET)
+        link.click()
+
     def should_be_login_link(self):
         assert self.is_element_present(*BasePageLocators.LOGIN_LINK), "Login link is not presented"
+
+    def should_be_btn_basket(self):
+        assert self.is_element_present(*BasePageLocators.BTN_BASKET), "Button of basket not presented"
 
     def solve_quiz_and_get_code(self):
         alert = self.browser.switch_to.alert
