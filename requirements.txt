@@ -1,2 +1,5 @@
-pytest==7.0.1
+pip==22.0.4
+keyring==18.0.1
+setuptools==45.2.0
 selenium==4.1.0
+pytest==7.0.1
